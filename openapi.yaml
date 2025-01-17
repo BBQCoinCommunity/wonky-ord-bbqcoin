@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
   title: Wonky Ord API
-  description: API for getting transactions, blocks, balances, inscriptions, and dune info on Dogecoin.
+  description: API for getting transactions, blocks, balances, inscriptions, and runes info on BBQCoin.
   version: 1.0.0
 servers:
   - url: http://localhost:8080
     description: Local development server
-  - url: https://wonky-ord.dogeord.io
+  - url: https://bbqnals.bbqcoin.link
     description: Wonky Prod Server
 
 paths:
@@ -181,10 +181,10 @@ paths:
                   total_inscription_shibes:
                     type: integer
 
-  /drc20/balance/{address}:
+  /bqc20/balance/{address}:
     get:
-      summary: Get DRC20 balance for an address
-      operationId: getDrc20Balance
+      summary: Get BQC20 balance for an address
+      operationId: getBqc20Balance
       parameters:
         - name: address
           in: path
@@ -212,43 +212,43 @@ paths:
             type: integer
       responses:
         '200':
-          description: DRC20 balance
+          description: BQC20 balance
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  drc20:
+                  bqc20:
                     type: array
                     items:
                       type: object
 
-  /drc20/tick/{tick}:
+  /bqc20/tick/{tick}:
     get:
-      summary: Get DRC20 tick information
-      operationId: getDrc20TickInfo
+      summary: Get BQC20 tick information
+      operationId: getBqc20TickInfo
       parameters:
         - name: tick
           in: path
           required: true
-          description: DRC20 tick identifier
+          description: BQC20 tick identifier
           schema:
             type: string
       responses:
         '200':
-          description: DRC20 tick information
+          description: BQC20 tick information
           content:
             application/json:
               schema:
                 type: object
 
-  /drc20/tick:
+  /bqc20/tick:
     get:
-      summary: Get all DRC20 tick information
-      operationId: getAllDrc20TickInfo
+      summary: Get all BQC20 tick information
+      operationId: getAllBqc20TickInfo
       responses:
         '200':
-          description: DRC20 tick information
+          description: BQC20 tick information
           content:
             application/json:
               schema:
@@ -256,10 +256,10 @@ paths:
                 items:
                   type: object
 
-  /drc20/validate:
+  /bqc20/validate:
     get:
-      summary: Validate DRC20 inscriptions
-      operationId: validateDrc20
+      summary: Validate BQC20 inscriptions
+      operationId: validateBqc20
       parameters:
         - name: addresses
           in: query
@@ -284,12 +284,12 @@ paths:
   /dune/{dune}:
     get:
       summary: Get dune details
-      operationId: getDune
+      operationId: getRune
       parameters:
         - name: dune
           in: path
           required: true
-          description: Dune identifier
+          description: Rune identifier
           schema:
             type: string
         - name: json
@@ -300,7 +300,7 @@ paths:
             type: boolean
       responses:
         '200':
-          description: Dune details
+          description: Rune details
           content:
             text/html:
               schema:
@@ -309,34 +309,34 @@ paths:
               schema:
                 type: object
 
-  /dunes:
+  /runes:
     get:
-      summary: Get all dunes
-      operationId: getAllDunes
+      summary: Get all runes
+      operationId: getAllRunes
       responses:
         '200':
-          description: List of dunes
+          description: List of runes
           content:
             text/html:
               schema:
                 type: string
 
-  /dunes/balances:
+  /runes/balances:
     get:
       summary: Get dune balances
-      operationId: getDuneBalances
+      operationId: getRuneBalances
       responses:
         '200':
-          description: Dune balances
+          description: Rune balances
           content:
             text/html:
               schema:
                 type: string
 
-  /dunes/balance/{address}:
+  /runes/balance/{address}:
     get:
       summary: Get dune balances for an address
-      operationId: getDuneBalancesByAddress
+      operationId: getRuneBalancesByAddress
       parameters:
         - name: address
           in: path
@@ -350,7 +350,7 @@ paths:
           description: Show all dune balances
           schema:
             type: boolean
-        - name: list_dunes
+        - name: list_runes
           in: query
           required: false
           description: List dune information
@@ -364,7 +364,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Dune balance information
+          description: Rune balance information
           content:
             application/json:
               schema:
@@ -448,10 +448,10 @@ paths:
               schema:
                 type: string
 
-  /dunes_on_outputs:
+  /runes_on_outputs:
     get:
-      summary: Get dunes by output
-      operationId: getDunesByOutput
+      summary: Get runes by output
+      operationId: getRunesByOutput
       parameters:
         - name: outputs
           in: query
@@ -461,7 +461,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Dunes on outputs
+          description: Runes on outputs
           content:
             application/json:
               schema:
@@ -512,10 +512,10 @@ paths:
               schema:
                 type: object
 
-  /drc20/balance/{address}/{page}:
+  /bqc20/balance/{address}/{page}:
     get:
-      summary: Get paginated DRC20 balance for an address
-      operationId: getDrc20BalancePaginated
+      summary: Get paginated BQC20 balance for an address
+      operationId: getBqc20BalancePaginated
       parameters:
         - name: address
           in: path
@@ -543,16 +543,16 @@ paths:
             type: integer
       responses:
         '200':
-          description: DRC20 balance
+          description: BQC20 balance
           content:
             application/json:
               schema:
                 type: object
 
-  /dunes/balance/{address}/{page}:
+  /runes/balance/{address}/{page}:
     get:
       summary: Get paginated dune balances for an address
-      operationId: getDuneBalancesPaginated
+      operationId: getRuneBalancesPaginated
       parameters:
         - name: address
           in: path
@@ -572,7 +572,7 @@ paths:
           description: Show all dune balances
           schema:
             type: boolean
-        - name: list_dunes
+        - name: list_runes
           in: query
           required: false
           description: List dune information
@@ -586,7 +586,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Dune balance information
+          description: Rune balance information
           content:
             application/json:
               schema:
@@ -809,7 +809,7 @@ components:
           type: integer
         offset:
           type: integer
-    DuneOutput:
+    RuneOutput:
       type: object
       properties:
         txid:
@@ -822,7 +822,7 @@ components:
           type: integer
         balance:
           type: integer
-    DuneBalance:
+    RuneBalance:
       type: object
       properties:
         dune:
@@ -838,8 +838,8 @@ components:
         balances:
           type: array
           items:
-            $ref: '#/components/schemas/DuneOutput'
-    DuneHolder:
+            $ref: '#/components/schemas/RuneOutput'
+    RuneHolder:
       type: object
       properties:
         dune:

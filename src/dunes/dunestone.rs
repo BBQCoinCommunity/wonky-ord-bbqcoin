@@ -241,7 +241,7 @@ impl Dunestone {
 
     let mut builder = script::Builder::new()
         .push_opcode(opcodes::all::OP_RETURN)
-        .push_slice(b"D");
+        .push_slice(b"B");
 
     for chunk in payload.chunks(bitcoin::blockdata::constants::MAX_SCRIPT_ELEMENT_SIZE) {
       let push= chunk.try_into().unwrap();
@@ -259,7 +259,7 @@ impl Dunestone {
         continue;
       }
 
-      if instructions.next().transpose()? != Some(Instruction::PushBytes(b"D".as_ref().into())) {
+      if instructions.next().transpose()? != Some(Instruction::PushBytes(b"B".as_ref().into())) {
         continue;
       }
 
@@ -404,7 +404,7 @@ mod tests {
   fn deciphering_valid_dunestone_with_invalid_script_postfix_returns_script_error() {
     let mut script_pubkey = script::Builder::new()
       .push_opcode(opcodes::all::OP_RETURN)
-      .push_slice(b"D")
+      .push_slice(b"B")
       .into_script()
       .into_bytes();
 
@@ -434,7 +434,7 @@ mod tests {
       output: vec![TxOut {
         script_pubkey: script::Builder::new()
           .push_opcode(opcodes::all::OP_RETURN)
-          .push_slice(b"D")
+          .push_slice(b"B")
           .push_slice(&*[128])
           .into_script(),
         value: 0,
@@ -458,7 +458,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
             .push_opcode(opcodes::all::OP_RETURN)
-            .push_slice(b"D")
+            .push_slice(b"B")
             .push_slice([0, 1])
             .push_opcode(opcodes::all::OP_VERIFY)
             .push_slice([2, 3])
@@ -489,7 +489,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
             .push_opcode(opcodes::all::OP_RETURN)
-            .push_slice(b"D")
+            .push_slice(b"B")
             .into_script(),
           value: 0
         }],
@@ -522,7 +522,7 @@ mod tests {
         TxOut {
           script_pubkey: script::Builder::new()
             .push_opcode(opcodes::all::OP_RETURN)
-            .push_slice(b"D")
+            .push_slice(b"B")
             .push_slice(&*[128])
             .into_script(),
           value: 0,
@@ -530,7 +530,7 @@ mod tests {
         TxOut {
           script_pubkey: script::Builder::new()
             .push_opcode(opcodes::all::OP_RETURN)
-            .push_slice(b"D")
+            .push_slice(b"B")
             .push_slice(payload)
             .into_script(),
           value: 0,
@@ -559,7 +559,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -590,7 +590,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -625,7 +625,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -660,7 +660,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -691,7 +691,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -721,7 +721,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -756,7 +756,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -792,7 +792,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -827,7 +827,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -862,7 +862,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -898,7 +898,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -935,7 +935,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -970,7 +970,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -1008,7 +1008,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0
@@ -1042,7 +1042,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice::<&PushBytes>(varint::encode(2).as_slice().try_into().unwrap())
               .push_slice::<&PushBytes>(varint::encode(4).as_slice().try_into().unwrap())
               .push_slice::<&PushBytes>(varint::encode(1).as_slice().try_into().unwrap())
@@ -1090,7 +1090,7 @@ mod tests {
           TxOut {
             script_pubkey: script::Builder::new()
                 .push_opcode(opcodes::all::OP_RETURN)
-                .push_slice(b"D")
+                .push_slice(b"B")
                 .push_slice(payload)
                 .into_script(),
             value: 0
@@ -1130,7 +1130,7 @@ mod tests {
           TxOut {
             script_pubkey: script::Builder::new()
                 .push_opcode(opcodes::all::OP_RETURN)
-                .push_slice(b"D")
+                .push_slice(b"B")
                 .push_slice(payload)
                 .into_script(),
             value: 0
@@ -1163,7 +1163,7 @@ mod tests {
             .encipher()
             .len()
             - 1
-            - b"D".len(),
+            - b"B".len(),
         size
       );
     }
@@ -1423,7 +1423,7 @@ mod tests {
         output: vec![TxOut {
           script_pubkey: script::Builder::new()
               .push_opcode(opcodes::all::OP_RETURN)
-              .push_slice(b"D")
+              .push_slice(b"B")
               .push_slice(payload)
               .into_script(),
           value: 0

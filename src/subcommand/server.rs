@@ -289,13 +289,13 @@ impl Server {
         .route("/range/:start/:end", get(Self::range))
         .route("/rare.txt", get(Self::rare_txt))
         .route("/dune/:dune", get(Self::dune))
-        .route("/dunes", get(Self::dunes))
-        .route("/dunes/balances", get(Self::dunes_balances))
+        .route("/runes", get(Self::dunes))
+        .route("/runes/balances", get(Self::dunes_balances))
         .route(
-          "/dunes/balance/:address",
+          "/runes/balance/:address",
           get(Self::dunes_by_address_unpaginated),
         )
-        .route("/dunes/balance/:address/:page", get(Self::dunes_by_address))
+        .route("/runes/balance/:address/:page", get(Self::dunes_by_address))
         .route(
           "/utxos/balance/:address",
           get(Self::utxos_by_address_unpaginated),
@@ -319,7 +319,7 @@ impl Server {
           "/bqc20/address/:address/balance",
           get(Self::drc20_all_balance),
         )
-        .route("/dunes_on_outputs", get(Self::dunes_by_outputs))
+        .route("/runes_on_outputs", get(Self::dunes_by_outputs))
         .route("/sat/:sat", get(Self::sat))
         .route("/search", get(Self::search_by_query))
         .route("/search/*query", get(Self::search_by_path))
@@ -738,11 +738,11 @@ impl Server {
 
       let output = index
         .get_transaction(txid)?
-        .ok_or_not_found(|| format!("dunes {txid} current transaction"))?
+        .ok_or_not_found(|| format!("runes {txid} current transaction"))?
         .output
         .into_iter()
         .nth(vout.try_into().unwrap())
-        .ok_or_not_found(|| format!("dunes {vout} current transaction output"))?;
+        .ok_or_not_found(|| format!("runes {vout} current transaction output"))?;
       let shibes = output.value;
       let script = output.script_pubkey;
 
@@ -885,11 +885,11 @@ impl Server {
           let vout = outpoint.vout;
           let output = index
             .get_transaction(txid)?
-            .ok_or_not_found(|| format!("dunes {txid} current transaction"))?
+            .ok_or_not_found(|| format!("runes {txid} current transaction"))?
             .output
             .into_iter()
             .nth(vout.try_into().unwrap())
-            .ok_or_not_found(|| format!("dunes {vout} current transaction output"))?;
+            .ok_or_not_found(|| format!("runes {vout} current transaction output"))?;
 
           dune_balance.balances.push(DuneOutput {
             txid,
@@ -1129,7 +1129,7 @@ impl Server {
 
     let (id, entry) = index.dune(dune)?.ok_or_else(|| {
       ServerError::NotFound(
-        "tracking dunes requires index created with `--index-dunes` flag".into(),
+        "tracking runes requires index created with `--index-dunes` flag".into(),
       )
     })?;
 
@@ -3019,7 +3019,7 @@ mod tests {
     test_server.assert_response_regex(
     "/",
     StatusCode::OK,
-    ".*<title>Dunes</title>.*
+    ".*<title>Runes</title>.*
 <h2>Latest Blocks</h2>
 <ol start=1 reversed class=blocks>
   <li><a href=/block/[[:xdigit:]]{64}>[[:xdigit:]]{64}</a></li>
@@ -3033,7 +3033,7 @@ mod tests {
     TestServer::new().assert_response_regex(
       "/",
       StatusCode::OK,
-      ".*<a href=/>Dunes<sup>regtest</sup></a>.*",
+      ".*<a href=/>Runes<sup>regtest</sup></a>.*",
     );
   }
 

@@ -13,7 +13,7 @@ use {
 fuzz_target!(|input: Vec<Vec<u8>>| {
   let mut builder = script::Builder::new()
     .push_opcode(opcodes::all::OP_RETURN)
-    .push_slice(b"D");
+    .push_slice(b"B");
 
   for slice in input {
     let Ok(push): Result<&[u8], _> = slice.as_slice().try_into() else {
