@@ -35,7 +35,7 @@ pub(crate) enum Wallet {
   Balance,
   #[clap(about = "Create new wallet")]
   Create(create::Create),
-  #[clap(about = "Create dune")]
+  #[clap(about = "Create rune")]
   Etch(etch::Etch),
   #[clap(about = "Create inscription")]
   Inscribe(inscribe::Inscribe),

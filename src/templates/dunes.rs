@@ -7,6 +7,6 @@ pub(crate) struct DunesHtml {
 
 impl PageContent for DunesHtml {
   fn title(&self) -> String {
-    "Dunes".to_string()
+    "Runes".to_string()
   }
 }

@@ -288,7 +288,7 @@ impl Server {
         .route("/preview/:inscription_id", get(Self::preview))
         .route("/range/:start/:end", get(Self::range))
         .route("/rare.txt", get(Self::rare_txt))
-        .route("/dune/:dune", get(Self::dune))
+        .route("/rune/:dune", get(Self::dune))
         .route("/runes", get(Self::dunes))
         .route("/runes/balances", get(Self::dunes_balances))
         .route(
@@ -1124,7 +1124,7 @@ impl Server {
       query::Dune::SpacedDune(spaced_dune) => spaced_dune.dune,
       query::Dune::DuneId(dune_id) => index
         .get_dune_by_id(dune_id)?
-        .ok_or_not_found(|| format!("dune {dune_id}"))?,
+        .ok_or_not_found(|| format!("rune {dune_id}"))?,
     };
 
     let (id, entry) = index.dune(dune)?.ok_or_else(|| {
@@ -1690,15 +1690,15 @@ impl Server {
     } else if INSCRIPTION_ID.is_match(query) {
       Ok(Redirect::to(&format!("/inscription/{query}")))
     } else if DUNE.is_match(query) {
-      Ok(Redirect::to(&format!("/dune/{query}")))
+      Ok(Redirect::to(&format!("/rune/{query}")))
     } else if DUNE_ID.is_match(query) {
       let id = query
         .parse::<DuneId>()
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
-      let dune = index.get_dune_by_id(id)?.ok_or_not_found(|| "dune ID")?;
+      let dune = index.get_dune_by_id(id)?.ok_or_not_found(|| "rune ID")?;
 
-      Ok(Redirect::to(&format!("/dune/{dune}")))
+      Ok(Redirect::to(&format!("/rune/{dune}")))
     } else {
       Ok(Redirect::to(&format!("/sat/{query}")))
     }
@@ -2675,7 +2675,7 @@ mod tests {
 
   #[test]
   fn search_by_query_returns_dune() {
-    TestServer::new().assert_redirect("/search?query=ABCD", "/dune/ABCD");
+    TestServer::new().assert_redirect("/search?query=ABCD", "/rune/ABCD");
   }
 
   #[test]
@@ -2730,7 +2730,7 @@ mod tests {
 
   #[test]
   fn search_by_path_returns_dune() {
-    TestServer::new().assert_redirect("/search/ABCD", "/dune/ABCD");
+    TestServer::new().assert_redirect("/search/ABCD", "/rune/ABCD");
   }
 
   #[test]
@@ -2741,7 +2741,7 @@ mod tests {
 
     let dune = Dune(u128::from(21_000_000 * COIN_VALUE));
 
-    server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/rune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
     server.bitcoin_rpc_server.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0)],
@@ -2766,10 +2766,10 @@ mod tests {
 
     server.mine_blocks(1);
 
-    server.assert_redirect("/search/2/1", "/dune/NVTDIJZYIPU");
-    server.assert_redirect("/search?query=2/1", "/dune/NVTDIJZYIPU");
+    server.assert_redirect("/search/2/1", "/rune/NVTDIJZYIPU");
+    server.assert_redirect("/search?query=2/1", "/rune/NVTDIJZYIPU");
 
-    server.assert_response_regex("/dune/100/200", StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex("/rune/100/200", StatusCode::NOT_FOUND, ".*");
 
     server.assert_response_regex(
       "/search/100000000000000000000/200000000000000000",

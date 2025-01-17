@@ -205,8 +205,8 @@ mod tests {
         .*
         <dl>
           .*
-          <dt>dune</dt>
-          <dd><a href=/dune/A>A</a></dd>
+          <dt>rune</dt>
+          <dd><a href=/rune/A>A</a></dd>
         </dl>
       "
       .unindent()

@@ -9,16 +9,16 @@
   </dd>
 %% }
 %% if !self.dunes.is_empty() {
-  <dt>dunes</dt>
+  <dt>runes</dt>
   <dd>
     <table>
       <tr>
-        <th>dune</th>
+        <th>rune</th>
         <th>balance</th>
       </tr>
       %% for (dune, balance) in &self.dunes {
       <tr>
-        <td><a href=/dune/{{ dune }}>{{ dune }}</a></td>
+        <td><a href=/rune/{{ dune }}>{{ dune }}</a></td>
         <td>{{ balance }}</td>
       </tr>
       %% }

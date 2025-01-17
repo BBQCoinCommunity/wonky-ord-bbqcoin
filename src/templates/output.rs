@@ -209,15 +209,15 @@ mod tests {
       "
         <h1>Output <span class=monospace>1{64}:1</span></h1>
         <dl>
-          <dt>dunes</dt>
+          <dt>runes</dt>
           <dd>
             <table>
               <tr>
-                <th>dune</th>
+                <th>rune</th>
                 <th>balance</th>
               </tr>
               <tr>
-                <td><a href=/dune/A>A</a></td>
+                <td><a href=/rune/A>A</a></td>
                 <td>1.1</td>
               </tr>
             </table>

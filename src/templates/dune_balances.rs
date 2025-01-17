@@ -7,7 +7,7 @@ pub struct DuneBalancesHtml {
 
 impl PageContent for DuneBalancesHtml {
   fn title(&self) -> String {
-    "Dune Balances".to_string()
+    "Rune Balances".to_string()
   }
 }
 
@@ -50,14 +50,14 @@ mod tests {
 
     assert_regex_match!(
       DuneBalancesHtml { balances }.to_string(),
-      "<h1>Dune Balances</h1>
+      "<h1>Rune Balances</h1>
 <table>
   <tr>
-    <th>dune</th>
+    <th>rune</th>
     <th>balances</th>
   </tr>
   <tr>
-    <td><a href=/dune/AAAAAAAAAAAAA>.*</a></td>
+    <td><a href=/rune/AAAAAAAAAAAAA>.*</a></td>
     <td>
       <table>
         <tr>
@@ -72,7 +72,7 @@ mod tests {
     </td>
   </tr>
   <tr>
-    <td><a href=/dune/AAAAAAAAAAAAB>.*</a></td>
+    <td><a href=/rune/AAAAAAAAAAAAB>.*</a></td>
     <td>
       <table>
         <tr>

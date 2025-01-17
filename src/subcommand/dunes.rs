@@ -32,7 +32,7 @@ pub(crate) fn run(options: Options) -> SubcommandResult {
 
   ensure!(
     index.has_dune_index(),
-    "`ord dunes` requires index created with `--index-dunes` flag",
+    "`ord runes` requires index created with `--index-dunes` flag",
   );
 
   index.update()?;

@@ -281,7 +281,7 @@ paths:
               schema:
                 type: object
 
-  /dune/{dune}:
+  /rune/{dune}:
     get:
       summary: Get dune details
       operationId: getRune
