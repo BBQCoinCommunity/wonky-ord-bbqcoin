@@ -19,7 +19,7 @@ use {
     deserialize_from_str::DeserializeFromStr,
     epoch::Epoch,
     height::Height,
-    index::{Index, List, DuneEntry},
+    index::{Index, List, RuneEntry},
     inscription::Inscription,
     inscription_id::InscriptionId,
     tag::Tag,
@@ -27,7 +27,7 @@ use {
     options::Options,
     outgoing::Outgoing,
     representation::Representation,
-    dunes::{Etching, Pile, SpacedDune},
+    runes::{Etching, Pile, SpacedRune},
     sat::Sat,
     subcommand::Subcommand,
     tally::Tally,
@@ -48,7 +48,7 @@ use {
   chrono::{DateTime, TimeZone, Utc},
   clap::{ArgGroup, Parser},
   derive_more::{Display, FromStr},
-  drc20::{errors},
+  bqc20::{errors},
   html_escaper::{Escape, Trusted},
   lazy_static::lazy_static,
   regex::Regex,
@@ -81,7 +81,7 @@ use crate::sat_point::SatPoint;
 
 pub use self::{
   fee_rate::FeeRate, object::Object, rarity::Rarity,
-  dunes::{Edict, Dune, DuneId, Dunestone, Terms},
+  runes::{Edict, Rune, RuneId, Runestone, Terms},
   subcommand::wallet::transaction_builder::{Target, TransactionBuilder},
 };
 
@@ -124,8 +124,8 @@ mod outgoing;
 mod page_config;
 mod rarity;
 mod representation;
-mod drc20;
-mod dunes;
+mod bqc20;
+mod runes;
 mod sat;
 mod sat_point;
 pub mod subcommand;

@@ -1,0 +1,33 @@
+[Unit]
+After=network-online.target
+Description=BBQCoin daemon
+Documentation=https://github.com/bbqcoin/bbqcoin/blob/master/doc/init.md
+Wants=network-online.target
+
+[Service]
+ConfigurationDirectory=bbqcoin
+ConfigurationDirectoryMode=0710
+ExecStart=/usr/local/bin/bbqcoind \
+  -conf=/etc/bbqcoin/bbqcoin.conf \
+  -chain=${CHAIN}
+ExecStartPre=/bin/chgrp bbqcoin /etc/bbqcoin
+Group=bbqcoin
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PermissionsStartOnly=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+Restart=on-failure
+RuntimeDirectory=bbqcoind
+RuntimeDirectoryMode=0710
+StateDirectory=bbqcoind
+StateDirectoryMode=0710
+TimeoutStartSec=infinity
+TimeoutStopSec=600
+Type=simple
+User=bbqcoin
+
+[Install]
+WantedBy=multi-user.target

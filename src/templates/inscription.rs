@@ -13,7 +13,7 @@ pub(crate) struct InscriptionHtml {
   pub(crate) next: Option<InscriptionId>,
   pub(crate) output: TxOut,
   pub(crate) previous: Option<InscriptionId>,
-  pub(crate) dune: Option<SpacedDune>,
+  pub(crate) rune: Option<SpacedRune>,
   pub(crate) sat: Option<Sat>,
   pub(crate) satpoint: SatPoint,
   pub(crate) timestamp: DateTime<Utc>,
@@ -31,7 +31,7 @@ pub(crate) struct ShibescriptionJson {
   pub(crate) output: TxOut,
   pub(crate) address: Option<String>,
   pub(crate) previous: Option<InscriptionId>,
-  pub(crate) dune: Option<SpacedDune>,
+  pub(crate) rune: Option<SpacedRune>,
   pub(crate) sat: Option<Sat>,
   pub(crate) satpoint: SatPoint,
   pub(crate) timestamp: DateTime<Utc>,
@@ -47,7 +47,7 @@ pub struct InscriptionJson {
   pub genesis_height: u32,
   pub inscription_id: InscriptionId,
   pub inscription_number: u64,
-  //pub dune: Option<SpacedDune>,
+  //pub rune: Option<SpacedRune>,
   pub timestamp: u32,
 }
 
@@ -60,7 +60,7 @@ pub struct InscriptionByAddressJson {
   pub genesis_height: u32,
   pub inscription_id: InscriptionId,
   pub inscription_number: u64,
-  //pub dune: Option<SpacedDune>,
+  //pub rune: Option<SpacedRune>,
   pub timestamp: u32,
   pub offset: u64,
 }
@@ -189,7 +189,7 @@ mod tests {
   }
 
   #[test]
-  fn with_dune() {
+  fn with_rune() {
     assert_regex_match!(
       InscriptionHtml {
         genesis_fee: 1,
@@ -197,7 +197,7 @@ mod tests {
         inscription_id: inscription_id(1),
         inscription_number: 1,
         satpoint: satpoint(1, 0),
-        dune: Some(Dune(0)),
+        rune: Some(Rune(0)),
         ..Default::default()
       },
       "

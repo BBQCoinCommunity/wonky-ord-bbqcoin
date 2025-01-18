@@ -1,4 +1,4 @@
-use crate::dunes::MintError;
+use crate::runes::MintError;
 use crate::sat::Sat;
 use crate::sat_point::SatPoint;
 use super::*;
@@ -40,7 +40,7 @@ impl Entry for Txid {
 }
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-pub(crate) struct DuneEntry {
+pub(crate) struct RuneEntry {
   pub(crate) block: u64,
   pub(crate) burned: u128,
   pub(crate) divisibility: u8,
@@ -49,7 +49,7 @@ pub(crate) struct DuneEntry {
   pub(crate) mints: u128,
   pub(crate) number: u64,
   pub(crate) premine: u128,
-  pub(crate) dune: Dune,
+  pub(crate) rune: Rune,
   pub(crate) spacers: u32,
   pub(crate) supply: u128,
   pub(crate) symbol: Option<char>,
@@ -57,7 +57,7 @@ pub(crate) struct DuneEntry {
   pub(crate) turbo: bool,
 }
 
-pub(super) type DuneEntryValue = (
+pub(super) type RuneEntryValue = (
   u64,                      // block
   u128,                     // burned
   u8,                       // divisibility
@@ -65,7 +65,7 @@ pub(super) type DuneEntryValue = (
   Option<TermsEntryValue>,  // terms parameters
   u128,                     // mints
   u64,                      // number
-  (u128, u32),              // dune + spacers
+  (u128, u32),              // rune + spacers
   (u128, u128),             // supply + premine
   u32,                      // symbol
   u64,                      // timestamp
@@ -79,10 +79,10 @@ type TermsEntryValue = (
   (Option<u64>, Option<u64>), // offset
 );
 
-impl DuneEntry {
-  pub(crate) fn spaced_dune(&self) -> SpacedDune {
-    SpacedDune {
-      dune: self.dune,
+impl RuneEntry {
+  pub(crate) fn spaced_rune(&self) -> SpacedRune {
+    SpacedRune {
+      rune: self.rune,
       spacers: self.spacers,
     }
   }
@@ -166,7 +166,7 @@ impl DuneEntry {
   }
 }
 
-impl Default for DuneEntry {
+impl Default for RuneEntry {
   fn default() -> Self {
     Self {
       block: 0,
@@ -177,7 +177,7 @@ impl Default for DuneEntry {
       mints: 0,
       number: 0,
       premine: 0,
-      dune: Dune(0),
+      rune: Rune(0),
       spacers: 0,
       supply: 0,
       symbol: None,
@@ -201,8 +201,8 @@ impl Entry for Txid {
   }
 }*/
 
-impl Entry for DuneEntry {
-  type Value = DuneEntryValue;
+impl Entry for RuneEntry {
+  type Value = RuneEntryValue;
   fn load(
     (
       block,
@@ -212,12 +212,12 @@ impl Entry for DuneEntry {
       terms,
       mints,
       number,
-      (dune, spacers),
+      (rune, spacers),
       (supply, premine),
       symbol,
       timestamp,
       turbo,
-    ): DuneEntryValue,) -> Self {
+    ): RuneEntryValue,) -> Self {
     Self {
       block,
       burned,
@@ -237,7 +237,7 @@ impl Entry for DuneEntry {
       mints,
       number,
       premine,
-      dune: Dune(dune),
+      rune: Rune(rune),
       spacers,
       supply,
       symbol: char::from_u32(symbol),
@@ -282,7 +282,7 @@ impl Entry for DuneEntry {
       ),
       self.mints,
       self.number,
-      (self.dune.0, self.spacers),
+      (self.rune.0, self.spacers),
       (self.supply, self.premine),
       self.symbol.map(u32::from).unwrap_or(u32::MAX),
       self.timestamp,
@@ -291,10 +291,10 @@ impl Entry for DuneEntry {
   }
 }
 
-pub(super) type DuneIdValue = (u64, u32);
+pub(super) type RuneIdValue = (u64, u32);
 
-impl Entry for DuneId {
-  type Value = DuneIdValue;
+impl Entry for RuneId {
+  type Value = RuneIdValue;
 
   fn load((height, index): Self::Value) -> Self {
     Self { height, index }

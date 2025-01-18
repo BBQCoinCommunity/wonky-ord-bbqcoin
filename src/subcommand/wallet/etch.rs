@@ -7,8 +7,8 @@ pub(crate) struct Etch {
   divisibility: u8,
   #[clap(long, help = "Etch with fee rate of <FEE_RATE> sats/vB.")]
   fee_rate: FeeRate,
-  #[clap(long, help = "Etch dune <DUNE>. May contain `.` or `•`as spacers.")]
-  dune: SpacedDune,
+  #[clap(long, help = "Etch rune <RUNE>. May contain `.` or `•`as spacers.")]
+  rune: SpacedRune,
   #[clap(long, help = "Set supply to <SUPPLY>.")]
   supply: Decimal,
   #[clap(long, help = "Set currency symbol to <SYMBOL>.")]
@@ -25,48 +25,48 @@ impl Etch {
     let index = Index::open(&options)?;
 
     ensure!(
-      index.has_dune_index(),
-      "`ord wallet etch` requires index created with `--index-dunes` flag",
+      index.has_rune_index(),
+      "`ord wallet etch` requires index created with `--index-runes` flag",
     );
 
     index.update()?;
 
-    let SpacedDune { dune, spacers } = self.dune;
+    let SpacedRune { rune, spacers } = self.rune;
 
-    let client = options.dogecoin_rpc_client_for_wallet_command(false)?;
+    let client = options.bbqcoin_rpc_client_for_wallet_command(false)?;
 
     let count = client.get_block_count()?;
 
     ensure!(
-      index.dune(dune)?.is_none(),
-      "dune `{}` has already been etched",
-      dune,
+      index.rune(rune)?.is_none(),
+      "rune `{}` has already been etched",
+      rune,
     );
 
     let minimum_at_height =
-        Dune::minimum_at_height(options.chain(), Height(u32::try_from(count).unwrap() + 1));
+        Rune::minimum_at_height(options.chain(), Height(u32::try_from(count).unwrap() + 1));
 
     ensure!(
-      dune >= minimum_at_height,
-      "dune is less than minimum for next block: {} < {minimum_at_height}",
-      dune,
+      rune >= minimum_at_height,
+      "rune is less than minimum for next block: {} < {minimum_at_height}",
+      rune,
     );
 
-    ensure!(!dune.is_reserved(), "dune `{}` is reserved", dune);
+    ensure!(!rune.is_reserved(), "rune `{}` is reserved", rune);
 
     ensure!(
-      self.divisibility <= crate::dunes::MAX_DIVISIBILITY,
+      self.divisibility <= crate::runes::MAX_DIVISIBILITY,
       "<DIVISIBILITY> must be equal to or less than 38"
     );
 
     let destination = get_change_address(&client)?;
 
-    let dunestone = Dunestone {
+    let runestone = Runestone {
       etching: Some(Etching {
         divisibility: Some(self.divisibility),
         terms: None,
         premine: None,
-        dune: Some(dune),
+        rune: Some(rune),
         spacers: Some(spacers),
         symbol: Some(self.symbol),
         turbo: false,
@@ -80,11 +80,11 @@ impl Etch {
       cenotaph: false,
     };
 
-    let script_pubkey = dunestone.encipher();
+    let script_pubkey = runestone.encipher();
 
     ensure!(
       script_pubkey.len() <= 82,
-      "dunestone greater than maximum OP_RETURN size: {} > 82",
+      "runestone greater than maximum OP_RETURN size: {} > 82",
       script_pubkey.len()
     );
 

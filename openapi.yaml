@@ -281,12 +281,12 @@ paths:
               schema:
                 type: object
 
-  /rune/{dune}:
+  /rune/{rune}:
     get:
-      summary: Get dune details
+      summary: Get rune details
       operationId: getRune
       parameters:
-        - name: dune
+        - name: rune
           in: path
           required: true
           description: Rune identifier
@@ -323,7 +323,7 @@ paths:
 
   /runes/balances:
     get:
-      summary: Get dune balances
+      summary: Get rune balances
       operationId: getRuneBalances
       responses:
         '200':
@@ -335,7 +335,7 @@ paths:
 
   /runes/balance/{address}:
     get:
-      summary: Get dune balances for an address
+      summary: Get rune balances for an address
       operationId: getRuneBalancesByAddress
       parameters:
         - name: address
@@ -347,19 +347,19 @@ paths:
         - name: show_all
           in: query
           required: false
-          description: Show all dune balances
+          description: Show all rune balances
           schema:
             type: boolean
         - name: list_runes
           in: query
           required: false
-          description: List dune information
+          description: List rune information
           schema:
             type: boolean
         - name: filter
           in: query
           required: false
-          description: Filter dune information
+          description: Filter rune information
           schema:
             type: string
       responses:
@@ -551,7 +551,7 @@ paths:
 
   /runes/balance/{address}/{page}:
     get:
-      summary: Get paginated dune balances for an address
+      summary: Get paginated rune balances for an address
       operationId: getRuneBalancesPaginated
       parameters:
         - name: address
@@ -569,19 +569,19 @@ paths:
         - name: show_all
           in: query
           required: false
-          description: Show all dune balances
+          description: Show all rune balances
           schema:
             type: boolean
         - name: list_runes
           in: query
           required: false
-          description: List dune information
+          description: List rune information
           schema:
             type: boolean
         - name: filter
           in: query
           required: false
-          description: Filter dune information
+          description: Filter rune information
           schema:
             type: string
       responses:
@@ -825,7 +825,7 @@ components:
     RuneBalance:
       type: object
       properties:
-        dune:
+        rune:
           type: string
         divisibility:
           type: integer
@@ -842,7 +842,7 @@ components:
     RuneHolder:
       type: object
       properties:
-        dune:
+        rune:
           type: string
         holder:
           type: array

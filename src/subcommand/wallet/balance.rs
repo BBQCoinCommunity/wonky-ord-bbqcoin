@@ -5,7 +5,7 @@ pub struct Output {
     pub cardinal: u64,
     pub ordinal: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dunes: Option<BTreeMap<Dune, u128>>,
+    pub runes: Option<BTreeMap<Rune, u128>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dunic: Option<u64>,
     pub total: u64,
@@ -25,16 +25,16 @@ pub(crate) fn run(options: Options) -> SubcommandResult {
 
     let mut cardinal = 0;
     let mut ordinal = 0;
-    let mut dunes = BTreeMap::new();
+    let mut runes = BTreeMap::new();
     let mut dunic = 0;
     for (outpoint, amount) in unspent_outputs {
-        let dune_balances = index.get_dune_balances_for_outpoint(outpoint)?;
+        let rune_balances = index.get_rune_balances_for_outpoint(outpoint)?;
 
         if inscription_outputs.contains(&outpoint) {
             ordinal += amount.to_sat();
-        } else if !dune_balances.is_empty() {
-            for (spaced_dune, pile) in dune_balances {
-                *dunes.entry(spaced_dune.dune).or_default() += pile.amount;
+        } else if !rune_balances.is_empty() {
+            for (spaced_rune, pile) in rune_balances {
+                *runes.entry(spaced_rune.rune).or_default() += pile.amount;
             }
             dunic += amount.to_sat();
         } else {
@@ -45,8 +45,8 @@ pub(crate) fn run(options: Options) -> SubcommandResult {
     Ok(Box::new(Output {
         cardinal,
         ordinal,
-        dunes: index.has_dune_index().then_some(dunes),
-        dunic: index.has_dune_index().then_some(dunic),
+        runes: index.has_rune_index().then_some(runes),
+        dunic: index.has_rune_index().then_some(dunic),
         total: cardinal + ordinal + dunic,
     }))
 }

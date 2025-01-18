@@ -8,7 +8,7 @@ pub mod info;
 pub mod list;
 pub mod parse;
 mod preview;
-pub mod dunes;
+pub mod runes;
 mod server;
 pub mod subsidy;
 pub mod traits;
@@ -22,7 +22,7 @@ fn print_json(output: impl Serialize) -> Result {
 
 #[derive(Debug, Parser)]
 pub(crate) enum Subcommand {
-  #[command(about = "List all dune balances")]
+  #[command(about = "List all rune balances")]
   Balances,
   #[command(about = "List the first satoshis of each reward epoch")]
   Epochs,
@@ -38,8 +38,8 @@ pub(crate) enum Subcommand {
   Parse(parse::Parse),
   #[command(about = "Run an explorer server populated with inscriptions")]
   Preview(preview::Preview),
-  #[command(about = "List all dunes")]
-  Dunes,
+  #[command(about = "List all runes")]
+  Runes,
   #[command(about = "Run the explorer server")]
   Server(server::Server),
   #[command(about = "Display information about a block's subsidy")]
@@ -61,7 +61,7 @@ impl Subcommand {
       Self::List(list) => list.run(options),
       Self::Parse(parse) => parse.run(),
       Self::Preview(preview) => preview.run(),
-      Self::Dunes => dunes::run(options),
+      Self::Runes => runes::run(options),
       Self::Server(server) => {
         let index = Arc::new(Index::open(&options)?);
         let handle = axum_server::Handle::new();

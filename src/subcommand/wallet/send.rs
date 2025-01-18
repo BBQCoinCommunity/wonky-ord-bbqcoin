@@ -23,7 +23,7 @@ impl Send {
     let index = Index::open(&options)?;
     index.update()?;
 
-    let client = options.dogecoin_rpc_client_for_wallet_command(false)?;
+    let client = options.bbqcoin_rpc_client_for_wallet_command(false)?;
 
     let unspent_outputs = index.get_unspent_outputs(Wallet::load(&options)?)?;
 
@@ -40,15 +40,15 @@ impl Send {
       Outgoing::InscriptionId(id) => index
           .get_inscription_satpoint_by_id(id)?
           .ok_or_else(|| anyhow!("inscription {id} not found"))?,
-      Outgoing::Dune { decimal, dune } => {
-        let transaction = Self::send_dunes(
+      Outgoing::Rune { decimal, rune } => {
+        let transaction = Self::send_runes(
           address,
           &client,
           decimal,
           self.fee_rate,
           &index,
           inscriptions,
-          dune,
+          rune,
           dunic_outputs,
           unspent_outputs,
         )?;
@@ -116,25 +116,25 @@ impl Send {
     )?)
   }
 
-  fn send_dunes(
+  fn send_runes(
     address: Address,
     client: &Client,
     decimal: Decimal,
     fee_rate: FeeRate,
     index: &Index,
     inscriptions: BTreeMap<SatPoint, InscriptionId>,
-    spaced_dune: SpacedDune,
+    spaced_rune: SpacedRune,
     dunic_outputs: BTreeSet<OutPoint>,
     unspent_outputs: BTreeMap<OutPoint, Amount>,
   ) -> Result<Txid> {
     ensure!(
-      index.has_dune_index(),
-      "sending dunes with `ord send` requires index created with `--index-dunes` flag",
+      index.has_rune_index(),
+      "sending runes with `ord send` requires index created with `--index-runes` flag",
     );
 
     let (id, entry) = index
-        .dune(spaced_dune.dune)?
-        .with_context(|| format!("dune `{}` has not been etched", spaced_dune.dune))?;
+        .rune(spaced_rune.rune)?
+        .with_context(|| format!("rune `{}` has not been etched", spaced_rune.rune))?;
 
     let amount = decimal.to_amount(entry.divisibility)?;
 
@@ -143,7 +143,7 @@ impl Send {
         .map(|satpoint| satpoint.outpoint)
         .collect::<HashSet<OutPoint>>();
 
-    let mut input_dunes = 0;
+    let mut input_runes = 0;
     let mut input = Vec::new();
 
     for output in dunic_outputs {
@@ -151,30 +151,30 @@ impl Send {
         continue;
       }
 
-      let balance = index.get_dune_balance(output, id)?;
+      let balance = index.get_rune_balance(output, id)?;
 
       if balance > 0 {
-        input_dunes += balance;
+        input_runes += balance;
         input.push(output);
       }
 
-      if input_dunes >= amount {
+      if input_runes >= amount {
         break;
       }
     }
 
     ensure! {
-      input_dunes >= amount,
+      input_runes >= amount,
       "insufficient `{}` balance, only {} in wallet",
-      spaced_dune,
+      spaced_rune,
       Pile {
-        amount: input_dunes,
+        amount: input_runes,
         divisibility: entry.divisibility,
         symbol: entry.symbol
       },
     }
 
-    let dunestone = Dunestone {
+    let runestone = Runestone {
       edicts: vec![Edict {
         amount,
         id: id.into(),
@@ -197,7 +197,7 @@ impl Send {
           .collect(),
       output: vec![
         TxOut {
-          script_pubkey: dunestone.encipher(),
+          script_pubkey: runestone.encipher(),
           value: 0,
         },
         TxOut {

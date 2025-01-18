@@ -48,7 +48,7 @@ impl Chain {
     }
   }
 
-  pub(crate) fn first_dune_height(self) -> u32 {
+  pub(crate) fn first_rune_height(self) -> u32 {
     match self {
       Self::Mainnet => 0,
       Self::Regtest => 0,

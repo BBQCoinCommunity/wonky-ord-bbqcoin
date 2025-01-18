@@ -8,15 +8,15 @@ use {
   },
   super::*,
   crate::{
-    drc20::{script_key::ScriptKey, Tick},
+    bqc20::{script_key::ScriptKey, Tick},
     page_config::PageConfig,
     templates::{
-      AddressOutputJson, BlockHtml, BlockJson, DuneAddressJson, DuneBalance, DuneBalancesHtml,
-      DuneEntryJson, DuneHtml, DuneJson, DuneOutput, DuneOutputJson, DunesHtml, HomeHtml,
+      AddressOutputJson, BlockHtml, BlockJson, RuneAddressJson, RuneBalance, RuneBalancesHtml,
+      RuneEntryJson, RuneHtml, RuneJson, RuneOutput, RuneOutputJson, RunesHtml, HomeHtml,
       InputHtml, InscriptionByAddressJson, InscriptionHtml, InscriptionJson, InscriptionsHtml,
       OutputHtml, OutputJson, PageContent, PageHtml, PreviewAudioHtml, PreviewImageHtml,
       PreviewModelHtml, PreviewPdfHtml, PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml,
-      RangeHtml, RareTxt, SatHtml, ShibescriptionJson, TransactionHtml, Utxo, DRC20,
+      RangeHtml, RareTxt, SatHtml, ShibescriptionJson, TransactionHtml, Utxo, BQC20,
     },
   },
   axum::{
@@ -164,10 +164,10 @@ struct BlocksQuery {
 }
 
 #[derive(Deserialize)]
-struct DunesBalanceQuery {
+struct RunesBalanceQuery {
   show_all: Option<bool>,
-  list_dunes: Option<bool>,
-  filter: Option<SpacedDune>,
+  list_runes: Option<bool>,
+  filter: Option<SpacedRune>,
 }
 
 #[derive(Deserialize)]
@@ -288,14 +288,14 @@ impl Server {
         .route("/preview/:inscription_id", get(Self::preview))
         .route("/range/:start/:end", get(Self::range))
         .route("/rare.txt", get(Self::rare_txt))
-        .route("/rune/:dune", get(Self::dune))
-        .route("/runes", get(Self::dunes))
-        .route("/runes/balances", get(Self::dunes_balances))
+        .route("/rune/:rune", get(Self::rune))
+        .route("/runes", get(Self::runes))
+        .route("/runes/balances", get(Self::runes_balances))
         .route(
           "/runes/balance/:address",
-          get(Self::dunes_by_address_unpaginated),
+          get(Self::runes_by_address_unpaginated),
         )
-        .route("/runes/balance/:address/:page", get(Self::dunes_by_address))
+        .route("/runes/balance/:address/:page", get(Self::runes_by_address))
         .route(
           "/utxos/balance/:address",
           get(Self::utxos_by_address_unpaginated),
@@ -309,17 +309,17 @@ impl Server {
           "/inscriptions/balance/:address/:page",
           get(Self::inscriptions_by_address),
         )
-        .route("/bqc20/tick/:tick", get(Self::drc20_tick_info))
-        .route("/bqc20/tick", get(Self::drc20_all_tick_info))
+        .route("/bqc20/tick/:tick", get(Self::bqc20_tick_info))
+        .route("/bqc20/tick", get(Self::bqc20_all_tick_info))
         .route(
           "/bqc20/tick/:tick/address/:address/balance",
-          get(Self::drc20_balance),
+          get(Self::bqc20_balance),
         )
         .route(
           "/bqc20/address/:address/balance",
-          get(Self::drc20_all_balance),
+          get(Self::bqc20_all_balance),
         )
-        .route("/runes_on_outputs", get(Self::dunes_by_outputs))
+        .route("/runes_on_outputs", get(Self::runes_by_outputs))
         .route("/sat/:sat", get(Self::sat))
         .route("/search", get(Self::search_by_query))
         .route("/search/*query", get(Self::search_by_path))
@@ -567,7 +567,7 @@ impl Server {
 
     let inscriptions = index.get_inscriptions_on_output(outpoint)?;
 
-    let dunes = index.get_dune_balances_for_outpoint(outpoint)?;
+    let runes = index.get_rune_balances_for_outpoint(outpoint)?;
 
     Ok(
       OutputHtml {
@@ -576,7 +576,7 @@ impl Server {
         list,
         chain: page_config.chain,
         output,
-        dunes,
+        runes,
       }
       .page(page_config),
     )
@@ -624,7 +624,7 @@ impl Server {
     let mut inscription_shibes = 0u128;
 
     for outpoint in outpoints {
-      if !index.get_dune_balances_for_outpoint(outpoint)?.is_empty() {
+      if !index.get_rune_balances_for_outpoint(outpoint)?.is_empty() {
         continue;
       }
       if !show_all
@@ -779,8 +779,8 @@ impl Server {
         };
 
         if let Some(content) = str_content.clone() {
-          let drc20 = DRC20::from_json_string(content.as_str());
-          if drc20.is_some() {
+          let bqc20 = BQC20::from_json_string(content.as_str());
+          if bqc20.is_some() {
             element_counter -= 1;
             continue;
           }
@@ -822,31 +822,31 @@ impl Server {
     )
   }
 
-  async fn dunes_by_address(
+  async fn runes_by_address(
     Extension(index): Extension<Arc<Index>>,
     Path(params): Path<(String, u32)>,
-    Query(query): Query<DunesBalanceQuery>,
+    Query(query): Query<RunesBalanceQuery>,
   ) -> ServerResult<Response> {
-    Self::get_dunes_by_address(index, params.0, Some(params.1), query).await
+    Self::get_runes_by_address(index, params.0, Some(params.1), query).await
   }
 
-  async fn dunes_by_address_unpaginated(
+  async fn runes_by_address_unpaginated(
     Extension(index): Extension<Arc<Index>>,
     Path(params): Path<String>,
-    Query(query): Query<DunesBalanceQuery>,
+    Query(query): Query<RunesBalanceQuery>,
   ) -> ServerResult<Response> {
-    Self::get_dunes_by_address(index, params, None, query).await
+    Self::get_runes_by_address(index, params, None, query).await
   }
 
-  async fn get_dunes_by_address(
+  async fn get_runes_by_address(
     index: Arc<Index>,
     address: String,
     page: Option<u32>,
-    query: DunesBalanceQuery,
+    query: RunesBalanceQuery,
   ) -> ServerResult<Response> {
     let (address, page) = (address, page.unwrap_or(0));
     let show_all = query.show_all.unwrap_or(false);
-    let list_dunes = query.list_dunes.unwrap_or(false);
+    let list_runes = query.list_runes.unwrap_or(false);
 
     let outpoints = index.get_account_outputs(address)?;
 
@@ -859,20 +859,20 @@ impl Server {
     };
     let mut elements_counter = 0;
 
-    let mut dune_balances_map: LinkedHashMap<SpacedDune, DuneBalance> = LinkedHashMap::new();
+    let mut rune_balances_map: LinkedHashMap<SpacedRune, RuneBalance> = LinkedHashMap::new();
 
     for outpoint in outpoints {
-      let dunes = index.get_dune_balances_for_outpoint(outpoint)?;
-      for (dune, balances) in dunes {
+      let runes = index.get_rune_balances_for_outpoint(outpoint)?;
+      for (rune, balances) in runes {
         if let Some(filter) = query.filter {
-          if dune != filter {
+          if rune != filter {
             continue;
           }
         }
-        let dune_balance = dune_balances_map
-          .entry(dune.clone())
-          .or_insert_with(|| DuneBalance {
-            dune: dune.clone(),
+        let rune_balance = rune_balances_map
+          .entry(rune.clone())
+          .or_insert_with(|| RuneBalance {
+            rune: rune.clone(),
             divisibility: balances.divisibility,
             symbol: balances.symbol,
             total_balance: 0,
@@ -880,7 +880,7 @@ impl Server {
             balances: Vec::new(),
           });
 
-        if !list_dunes {
+        if !list_runes {
           let txid = outpoint.txid;
           let vout = outpoint.vout;
           let output = index
@@ -891,7 +891,7 @@ impl Server {
             .nth(vout.try_into().unwrap())
             .ok_or_not_found(|| format!("runes {vout} current transaction output"))?;
 
-          dune_balance.balances.push(DuneOutput {
+          rune_balance.balances.push(RuneOutput {
             txid,
             vout,
             script: output.script_pubkey,
@@ -900,27 +900,27 @@ impl Server {
           });
         }
 
-        dune_balance.total_balance += balances.amount;
-        dune_balance.total_outputs += 1;
+        rune_balance.total_balance += balances.amount;
+        rune_balance.total_outputs += 1;
         elements_counter += 1;
       }
     }
 
-    let dune_balances: Vec<DuneBalance> = if show_all {
-      dune_balances_map.values().cloned().collect()
-    } else if list_dunes {
-      dune_balances_map
+    let rune_balances: Vec<RuneBalance> = if show_all {
+      rune_balances_map.values().cloned().collect()
+    } else if list_runes {
+      rune_balances_map
         .values()
         .cloned()
         .skip(start_index)
         .take(items_per_page)
         .collect()
     } else {
-      let values: Vec<DuneBalance> = dune_balances_map.values().cloned().collect();
+      let values: Vec<RuneBalance> = rune_balances_map.values().cloned().collect();
       let mut items_collected = 0;
       let mut result = Vec::new();
       for value in values.iter() {
-        let balances: Vec<DuneOutput> = value
+        let balances: Vec<RuneOutput> = value
           .balances
           .iter()
           .skip(start_index)
@@ -932,8 +932,8 @@ impl Server {
         if balances.is_empty() {
           continue;
         }
-        result.push(DuneBalance {
-          dune: value.dune.clone(),
+        result.push(RuneBalance {
+          rune: value.rune.clone(),
           divisibility: value.divisibility,
           symbol: value.symbol.clone(),
           total_balance: value.total_balance,
@@ -948,9 +948,9 @@ impl Server {
     };
 
     Ok(
-      Json(DuneAddressJson {
-        dunes: dune_balances,
-        total_dunes: dune_balances_map.len(),
+      Json(RuneAddressJson {
+        runes: rune_balances,
+        total_runes: rune_balances_map.len(),
         total_elements: elements_counter,
       })
       .into_response(),
@@ -1009,14 +1009,14 @@ impl Server {
 
       let inscriptions = index.get_inscriptions_on_output(outpoint)?;
 
-      let dunes = index.get_dune_balances_for_outpoint(outpoint)?;
+      let runes = index.get_rune_balances_for_outpoint(outpoint)?;
 
       outputs.push(OutputJson::new(
         server_config.chain,
         inscriptions,
         outpoint,
         output,
-        dunes,
+        runes,
       ))
     }
 
@@ -1025,13 +1025,13 @@ impl Server {
     Ok(outputs_json)
   }
 
-  async fn drc20_tick_info(
+  async fn bqc20_tick_info(
     Extension(index): Extension<Arc<Index>>,
     Path(tick): Path<String>,
   ) -> Result<Response, ServerError> {
     let tick =
       &Tick::from_str(tick.as_str()).map_err(|err| ServerError::BadRequest(err.to_string()))?;
-    let token_info = index.get_drc20_token_info(&tick.clone())?;
+    let token_info = index.get_bqc20_token_info(&tick.clone())?;
 
     if let Some(token_info) = token_info {
       Ok(Json(token_info).into_response())
@@ -1040,16 +1040,16 @@ impl Server {
     }
   }
 
-  async fn drc20_all_tick_info(
+  async fn bqc20_all_tick_info(
     Extension(index): Extension<Arc<Index>>,
   ) -> Result<Response, ServerError> {
     let token_info = index
-      .get_drc20_tokens_info()
+      .get_bqc20_tokens_info()
       .map_err(|err| ServerError::BadRequest(err.to_string()))?;
     Ok(Json(token_info).into_response())
   }
 
-  async fn drc20_balance(
+  async fn bqc20_balance(
     Extension(index): Extension<Arc<Index>>,
     Path(params): Path<(String, String)>,
   ) -> Result<Response, ServerError> {
@@ -1060,7 +1060,7 @@ impl Server {
       Address::from_str(&address).map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
     let balance = index
-      .get_drc20_balance(&ScriptKey::from_address(address, index.chain.network()), &tick)
+      .get_bqc20_balance(&ScriptKey::from_address(address, index.chain.network()), &tick)
       .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
     /*let available_balance = if let Some(balance) = balance
@@ -1073,7 +1073,7 @@ impl Server {
     Ok(Json(balance).into_response())
   }
 
-  async fn drc20_all_balance(
+  async fn bqc20_all_balance(
     Extension(index): Extension<Arc<Index>>,
     Path(address): Path<String>,
   ) -> Result<Response, ServerError> {
@@ -1081,7 +1081,7 @@ impl Server {
       Address::from_str(&address).map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
     let balance = index
-      .get_drc20_balances(&ScriptKey::from_address(address, index.chain.network()))
+      .get_bqc20_balances(&ScriptKey::from_address(address, index.chain.network()))
       .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
     /*let available_balance = if let Some(balance) = balance
@@ -1114,22 +1114,22 @@ impl Server {
     Ok(RareTxt(index.rare_sat_satpoints()?))
   }
 
-  async fn dune(
+  async fn rune(
     Extension(page_config): Extension<Arc<PageConfig>>,
     Extension(index): Extension<Arc<Index>>,
-    Path(DeserializeFromStr(dune_query)): Path<DeserializeFromStr<query::Dune>>,
+    Path(DeserializeFromStr(rune_query)): Path<DeserializeFromStr<query::Rune>>,
     Query(query): Query<JsonQuery>,
   ) -> ServerResult<Response> {
-    let dune = match dune_query {
-      query::Dune::SpacedDune(spaced_dune) => spaced_dune.dune,
-      query::Dune::DuneId(dune_id) => index
-        .get_dune_by_id(dune_id)?
-        .ok_or_not_found(|| format!("rune {dune_id}"))?,
+    let rune = match rune_query {
+      query::Rune::SpacedRune(spaced_rune) => spaced_rune.rune,
+      query::Rune::RuneId(rune_id) => index
+        .get_rune_by_id(rune_id)?
+        .ok_or_not_found(|| format!("rune {rune_id}"))?,
     };
 
-    let (id, entry) = index.dune(dune)?.ok_or_else(|| {
+    let (id, entry) = index.rune(rune)?.ok_or_else(|| {
       ServerError::NotFound(
-        "tracking runes requires index created with `--index-dunes` flag".into(),
+        "tracking runes requires index created with `--index-runes` flag".into(),
       )
     })?;
 
@@ -1149,7 +1149,7 @@ impl Server {
       .then_some(inscription);
 
     Ok(if !query.json.unwrap_or_default() {
-      DuneHtml {
+      RuneHtml {
         id,
         entry,
         mintable,
@@ -1158,15 +1158,15 @@ impl Server {
       .page(page_config)
       .into_response()
     } else {
-      Json(DuneJson {
-        entry: DuneEntryJson {
+      Json(RuneJson {
+        entry: RuneEntryJson {
           burned: entry.burned,
           divisibility: entry.divisibility,
           etching: entry.etching,
           mint: entry.terms,
           mints: entry.mints,
           number: entry.number,
-          dune: entry.spaced_dune(),
+          rune: entry.spaced_rune(),
           supply: entry.supply,
           symbol: entry.symbol,
           timestamp: entry.timestamp,
@@ -1179,35 +1179,35 @@ impl Server {
     })
   }
 
-  async fn dunes(
+  async fn runes(
     Extension(page_config): Extension<Arc<PageConfig>>,
     Extension(index): Extension<Arc<Index>>,
-  ) -> ServerResult<PageHtml<DunesHtml>> {
+  ) -> ServerResult<PageHtml<RunesHtml>> {
     Ok(
-      DunesHtml {
-        entries: index.dunes()?,
+      RunesHtml {
+        entries: index.runes()?,
       }
       .page(page_config),
     )
   }
 
-  async fn dunes_balances(
+  async fn runes_balances(
     Extension(page_config): Extension<Arc<PageConfig>>,
     Extension(index): Extension<Arc<Index>>,
   ) -> ServerResult<Response> {
-    let balances = index.get_dune_balance_map()?;
+    let balances = index.get_rune_balance_map()?;
     Ok(
-      DuneBalancesHtml { balances }
+      RuneBalancesHtml { balances }
         .page(page_config)
         .into_response(),
     )
   }
 
-  async fn dunes_by_outputs(
+  async fn runes_by_outputs(
     Extension(index): Extension<Arc<Index>>,
     Query(query): Query<OutputsQuery>,
   ) -> ServerResult<Response> {
-    let mut all_dunes_jsons = Vec::new();
+    let mut all_runes_jsons = Vec::new();
 
     // Split the outputs string into individual outputs
     let outputs = query.outputs.split(',');
@@ -1228,14 +1228,14 @@ impl Server {
       // Create OutPoint
       let outpoint = OutPoint::new(tx_id, vout);
 
-      let dunes = index.get_dune_balances_for_outpoint(outpoint)?;
+      let runes = index.get_rune_balances_for_outpoint(outpoint)?;
 
-      for (dune, balances) in dunes {
-        all_dunes_jsons.push(DuneOutputJson { dune, balances });
+      for (rune, balances) in runes {
+        all_runes_jsons.push(RuneOutputJson { rune, balances });
       }
     }
 
-    Ok(Json(all_dunes_jsons).into_response())
+    Ok(Json(all_runes_jsons).into_response())
   }
 
   async fn home(
@@ -1246,7 +1246,7 @@ impl Server {
   }
 
   async fn install_script() -> Redirect {
-    Redirect::to("https://raw.githubusercontent.com/apezord/ord-dogecoin/master/install.sh")
+    Redirect::to("https://raw.githubusercontent.com/apezord/ord-bbqcoin/master/install.sh")
   }
 
   async fn block(
@@ -1673,8 +1673,8 @@ impl Server {
       static ref HASH: Regex = Regex::new(r"^[[:xdigit:]]{64}$").unwrap();
       static ref OUTPOINT: Regex = Regex::new(r"^[[:xdigit:]]{64}:\d+$").unwrap();
       static ref INSCRIPTION_ID: Regex = Regex::new(r"^[[:xdigit:]]{64}i\d+$").unwrap();
-      static ref DUNE: Regex = Regex::new(r"^[A-Z•.]+$").unwrap();
-      static ref DUNE_ID: Regex = Regex::new(r"^[0-9]+:[0-9]+$").unwrap();
+      static ref RUNE: Regex = Regex::new(r"^[A-Z•.]+$").unwrap();
+      static ref RUNE_ID: Regex = Regex::new(r"^[0-9]+:[0-9]+$").unwrap();
     }
 
     let query = query.trim();
@@ -1689,16 +1689,16 @@ impl Server {
       Ok(Redirect::to(&format!("/output/{query}")))
     } else if INSCRIPTION_ID.is_match(query) {
       Ok(Redirect::to(&format!("/inscription/{query}")))
-    } else if DUNE.is_match(query) {
+    } else if RUNE.is_match(query) {
       Ok(Redirect::to(&format!("/rune/{query}")))
-    } else if DUNE_ID.is_match(query) {
+    } else if RUNE_ID.is_match(query) {
       let id = query
-        .parse::<DuneId>()
+        .parse::<RuneId>()
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
-      let dune = index.get_dune_by_id(id)?.ok_or_not_found(|| "rune ID")?;
+      let rune = index.get_rune_by_id(id)?.ok_or_not_found(|| "rune ID")?;
 
-      Ok(Redirect::to(&format!("/rune/{dune}")))
+      Ok(Redirect::to(&format!("/rune/{rune}")))
     } else {
       Ok(Redirect::to(&format!("/sat/{query}")))
     }
@@ -2006,7 +2006,7 @@ impl Server {
 
     let next = index.get_inscription_id_by_inscription_number(entry.inscription_number + 1)?;
 
-    let dune = index.get_dune_by_inscription_id(inscription_id)?;
+    let rune = index.get_rune_by_inscription_id(inscription_id)?;
 
     if !query.json.unwrap_or_default() {
       Ok(
@@ -2023,7 +2023,7 @@ impl Server {
           sat: entry.sat,
           satpoint,
           timestamp: timestamp(entry.timestamp.into()),
-          dune,
+          rune,
         }
         .page(page_config)
         .into_response(),
@@ -2055,7 +2055,7 @@ impl Server {
           sat: entry.sat,
           satpoint,
           timestamp: Default::default(),
-          dune,
+          rune,
         })
         .into_response(),
       )
@@ -2225,7 +2225,7 @@ impl Server {
           genesis_height: entry.height,
           inscription_id,
           inscription_number: entry.inscription_number,
-          //dune: None,
+          //rune: None,
           timestamp: entry.timestamp,
           tx_id: tx_id.to_string(),
           vout,
@@ -2281,10 +2281,10 @@ mod tests {
 
   use {super::*, reqwest::Url, std::net::TcpListener};
 
-  use crate::dunes::{Dunestone, Edict, Etching};
+  use crate::runes::{Runestone, Edict, Etching};
 
   struct TestServer {
-    dogecoin_rpc_server: test_bitcoincore_rpc::Handle,
+    bbqcoin_rpc_server: test_bitcoincore_rpc::Handle,
     index: Arc<Index>,
     ord_server_handle: Handle,
     url: Url,
@@ -2305,15 +2305,15 @@ mod tests {
       Self::new_server(test_bitcoincore_rpc::spawn(), None, ord_args, server_args)
     }
 
-    fn new_with_dogecoin_rpc_server_and_config(
-      dogecoin_rpc_server: test_bitcoincore_rpc::Handle,
+    fn new_with_bbqcoin_rpc_server_and_config(
+      bbqcoin_rpc_server: test_bitcoincore_rpc::Handle,
       config: String,
     ) -> Self {
-      Self::new_server(dogecoin_rpc_server, Some(config), &[], &[])
+      Self::new_server(bbqcoin_rpc_server, Some(config), &[], &[])
     }
 
     fn new_server(
-      dogecoin_rpc_server: test_bitcoincore_rpc::Handle,
+      bbqcoin_rpc_server: test_bitcoincore_rpc::Handle,
       config: Option<String>,
       ord_args: &[&str],
       server_args: &[&str],
@@ -2343,7 +2343,7 @@ mod tests {
 
       let (options, server) = parse_server_args(&format!(
         "ord --chain regtest --rpc-url {} --cookie-file {} --data-dir {} {config_args} {} server --http-port {} --address 127.0.0.1 {}",
-        dogecoin_rpc_server.url(),
+        bbqcoin_rpc_server.url(),
         cookiefile.to_str().unwrap(),
         tempdir.path().to_str().unwrap(),
         ord_args.join(" "),
@@ -2383,7 +2383,7 @@ mod tests {
       }
 
       Self {
-        dogecoin_rpc_server,
+        bbqcoin_rpc_server,
         index,
         ord_server_handle,
         tempdir,
@@ -2452,14 +2452,14 @@ mod tests {
     }
 
     fn mine_blocks(&self, n: u64) -> Vec<bitcoin::Block> {
-      let blocks = self.dogecoin_rpc_server.mine_blocks(n);
+      let blocks = self.bbqcoin_rpc_server.mine_blocks(n);
       self.index.update().unwrap();
       blocks
     }
 
     fn mine_blocks_with_subsidy(&self, n: u64, subsidy: u64) -> Vec<Block> {
       let blocks = self
-        .dogecoin_rpc_server
+        .bbqcoin_rpc_server
         .mine_blocks_with_subsidy(n, subsidy);
       self.index.update().unwrap();
       blocks
@@ -2649,7 +2649,7 @@ mod tests {
   fn install_sh_redirects_to_github() {
     TestServer::new().assert_redirect(
       "/install.sh",
-      "https://raw.githubusercontent.com/apezord/ord-dogecoin/master/install.sh",
+      "https://raw.githubusercontent.com/apezord/ord-bbqcoin/master/install.sh",
     );
   }
 
@@ -2674,7 +2674,7 @@ mod tests {
   }
 
   #[test]
-  fn search_by_query_returns_dune() {
+  fn search_by_query_returns_rune() {
     TestServer::new().assert_redirect("/search?query=ABCD", "/rune/ABCD");
   }
 
@@ -2729,32 +2729,32 @@ mod tests {
   }
 
   #[test]
-  fn search_by_path_returns_dune() {
+  fn search_by_path_returns_rune() {
     TestServer::new().assert_redirect("/search/ABCD", "/rune/ABCD");
   }
 
   #[test]
-  fn search_by_dune_id_returns_dune() {
-    let server = TestServer::new_with_regtest_with_index_dunes();
+  fn search_by_rune_id_returns_rune() {
+    let server = TestServer::new_with_regtest_with_index_runes();
 
     server.mine_blocks(1);
 
-    let dune = Dune(u128::from(21_000_000 * COIN_VALUE));
+    let rune = Rune(u128::from(21_000_000 * COIN_VALUE));
 
-    server.assert_response_regex(format!("/rune/{dune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/rune/{rune}"), StatusCode::NOT_FOUND, ".*");
 
     server.bitcoin_rpc_server.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0)],
       witness: inscription("text/plain", "hello").to_witness(),
       op_return: Some(
-        Dunestone {
+        Runestone {
           edicts: vec![Edict {
             id: 0,
             amount: u128::max_value(),
             output: 0,
           }],
           etching: Some(Etching {
-            dune,
+            rune,
             ..Default::default()
           }),
           ..Default::default()
@@ -3105,7 +3105,7 @@ mod tests {
       fee: 0,
       ..Default::default()
     };
-    test_server.dogecoin_rpc_server.broadcast_tx(transaction);
+    test_server.bbqcoin_rpc_server.broadcast_tx(transaction);
     let block_hash = test_server.mine_blocks(1)[0].block_hash();
 
     test_server.assert_response_regex(
@@ -3342,7 +3342,7 @@ mod tests {
 
     server.mine_blocks(1);
     server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         outputs: 2,
@@ -3368,7 +3368,7 @@ mod tests {
 
     server.mine_blocks(1);
     server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         outputs: 2,
@@ -3421,7 +3421,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/plain;charset=utf-8", "hello").to_witness(),
@@ -3444,7 +3444,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/plain;charset=utf-8", b"\xc3\x28").to_witness(),
@@ -3466,7 +3466,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription(
@@ -3493,7 +3493,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("audio/flac", "hello").to_witness(),
@@ -3516,7 +3516,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("application/pdf", "hello").to_witness(),
@@ -3539,7 +3539,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("image/png", "hello").to_witness(),
@@ -3563,7 +3563,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/html;charset=utf-8", "hello").to_witness(),
@@ -3586,7 +3586,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3609,7 +3609,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("video/webm", "hello").to_witness(),
@@ -3632,7 +3632,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3654,7 +3654,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3676,7 +3676,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3710,7 +3710,7 @@ mod tests {
     server.mine_blocks(1);
 
     server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3732,7 +3732,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: Inscription::new(Some("foo/bar".as_bytes().to_vec()), None).to_witness(),
@@ -3756,7 +3756,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: Inscription::new(Some("image/png".as_bytes().to_vec()), None).to_witness(),
@@ -3780,7 +3780,7 @@ mod tests {
     server.mine_blocks(1);
 
     let txid = server
-      .dogecoin_rpc_server
+      .bbqcoin_rpc_server
       .broadcast_tx(TransactionTemplate {
         inputs: &[(1, 0, 0)],
         witness: inscription("text/foo", "hello").to_witness(),
@@ -3814,7 +3814,7 @@ mod tests {
     for i in 0..101 {
       server.mine_blocks(1);
       server
-        .dogecoin_rpc_server
+        .bbqcoin_rpc_server
         .broadcast_tx(TransactionTemplate {
           inputs: &[(i + 1, 0, 0)],
           witness: inscription("text/foo", "hello").to_witness(),
@@ -3838,7 +3838,7 @@ mod tests {
     for i in 0..101 {
       server.mine_blocks(1);
       server
-        .dogecoin_rpc_server
+        .bbqcoin_rpc_server
         .broadcast_tx(TransactionTemplate {
           inputs: &[(i + 1, 0, 0)],
           witness: inscription("text/foo", "hello").to_witness(),
@@ -3901,18 +3901,18 @@ mod tests {
 
   #[test]
   fn inscriptions_can_be_hidden_with_config() {
-    let dogecoin_rpc_server = test_bitcoincore_rpc::spawn();
-    dogecoin_rpc_server.mine_blocks(1);
-    let txid = dogecoin_rpc_server.broadcast_tx(TransactionTemplate {
+    let bbqcoin_rpc_server = test_bitcoincore_rpc::spawn();
+    bbqcoin_rpc_server.mine_blocks(1);
+    let txid = bbqcoin_rpc_server.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0)],
       witness: inscription("text/plain;charset=utf-8", "hello").to_witness(),
       ..Default::default()
     });
     let inscription = InscriptionId::from(txid);
-    dogecoin_rpc_server.mine_blocks(1);
+    bbqcoin_rpc_server.mine_blocks(1);
 
-    let server = TestServer::new_with_dogecoin_rpc_server_and_config(
-      dogecoin_rpc_server,
+    let server = TestServer::new_with_bbqcoin_rpc_server_and_config(
+      bbqcoin_rpc_server,
       format!("\"hidden\":\n - {inscription}"),
     );
 

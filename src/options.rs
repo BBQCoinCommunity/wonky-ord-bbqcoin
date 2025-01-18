@@ -7,8 +7,8 @@ use {super::*, bitcoincore_rpc::Auth};
     .args(&["chain_argument", "signet", "regtest", "testnet"]),
 ))]
 pub(crate) struct Options {
-  #[arg(long, help = "Load Dogecoin Core data dir from <DOGECOIN_DATA_DIR>.")]
-  pub(crate) dogecoin_data_dir: Option<PathBuf>,
+  #[arg(long, help = "Load BBQCoin Core data dir from <BBQCOIN_DATA_DIR>.")]
+  pub(crate) bbqcoin_data_dir: Option<PathBuf>,
   #[arg(
     long = "chain",
     value_enum,
@@ -20,7 +20,7 @@ pub(crate) struct Options {
   pub(crate) config: Option<PathBuf>,
   #[arg(long, help = "Load configuration from <CONFIG_DIR>.")]
   pub(crate) config_dir: Option<PathBuf>,
-  #[arg(long, help = "Load Dogecoin Core RPC cookie file from <COOKIE_FILE>.")]
+  #[arg(long, help = "Load BBQCoin Core RPC cookie file from <COOKIE_FILE>.")]
   pub(crate) cookie_file: Option<PathBuf>,
   #[arg(long, help = "Use <CSP_ORIGIN> in Content-Security-Policy header. Set this to the public-facing URL of your ord instance.")]
   pub(crate) csp_origin: Option<String>,
@@ -38,31 +38,31 @@ pub(crate) struct Options {
   pub(crate) first_inscription_height: Option<u32>,
   #[arg(
   long,
-  help = "Don't look for dunes below <FIRST_DUNE_HEIGHT>."
+  help = "Don't look for runes below <FIRST_RUNE_HEIGHT>."
   )]
-  pub(crate) first_dune_height: Option<u32>,
+  pub(crate) first_rune_height: Option<u32>,
   #[arg(long, help = "Limit index to <HEIGHT_LIMIT> blocks.")]
   pub(crate) height_limit: Option<u32>,
   #[arg(long, help = "Use index at <INDEX>.")]
   pub(crate) index: Option<PathBuf>,
-  #[arg(long, help = "Track drc20 tokens and balances.")]
-  pub(crate) index_drc20: bool,
+  #[arg(long, help = "Track bqc20 tokens and balances.")]
+  pub(crate) index_bqc20: bool,
   #[arg(
   long,
-  help = "Track location of dunes. DUNES ARE IN AN UNFINISHED PRE-ALPHA STATE AND SUBJECT TO CHANGE AT ANY TIME."
+  help = "Track location of runes. RUNES ARE IN AN UNFINISHED PRE-ALPHA STATE AND SUBJECT TO CHANGE AT ANY TIME."
   )]
-  pub(crate) index_dunes: bool,
+  pub(crate) index_runes: bool,
   #[arg(long, help = "Track location of all satoshis.")]
   pub(crate) index_sats: bool,
   #[arg(long, help = "Store transactions in index.")]
   pub(crate) index_transactions: bool,
   #[arg(long, short, help = "Use regtest. Equivalent to `--chain regtest`.")]
   pub(crate) regtest: bool,
-  #[arg(long, help = "Connect to Dogecoin Core RPC at <RPC_URL>.")]
+  #[arg(long, help = "Connect to BBQCoin Core RPC at <RPC_URL>.")]
   pub(crate) rpc_url: Option<String>,
   #[arg(
   long,
-  help = "Number of parallel requests to dogecoin node."
+  help = "Number of parallel requests to bbqcoin node."
   )]
   pub(crate) nr_parallel_requests: Option<usize>,
   #[arg(long, short, help = "Use signet. Equivalent to `--chain signet`.")]
@@ -102,20 +102,20 @@ impl Options {
     }
   }
 
-  pub(crate) fn first_dune_height(&self) -> u32 {
+  pub(crate) fn first_rune_height(&self) -> u32 {
     if self.chain() == Chain::Regtest {
-      self.first_dune_height.unwrap_or(0)
+      self.first_rune_height.unwrap_or(0)
     } else if integration_test() {
       0
     } else {
       self
-          .first_dune_height
-          .unwrap_or_else(|| self.chain().first_dune_height())
+          .first_rune_height
+          .unwrap_or_else(|| self.chain().first_rune_height())
     }
   }
 
-  pub(crate) fn index_dunes(&self) -> bool {
-    self.index_dunes
+  pub(crate) fn index_runes(&self) -> bool {
+    self.index_runes
   }
 
   pub(crate) fn rpc_url(&self) -> String {
@@ -137,16 +137,16 @@ impl Options {
       return Ok(cookie_file.clone());
     }
 
-    let path = if let Some(dogecoin_data_dir) = &self.dogecoin_data_dir {
-      dogecoin_data_dir.clone()
+    let path = if let Some(bbqcoin_data_dir) = &self.bbqcoin_data_dir {
+      bbqcoin_data_dir.clone()
     } else if cfg!(target_os = "linux") {
       dirs::home_dir()
         .ok_or_else(|| anyhow!("failed to retrieve home dir"))?
-        .join(".dogecoin")
+        .join(".bbqcoin")
     } else {
       dirs::data_dir()
         .ok_or_else(|| anyhow!("failed to retrieve data dir"))?
-        .join("Dogecoin")
+        .join("BBQCoin")
     };
 
     let path = self.chain().join_with_data_dir(&path);
@@ -177,7 +177,7 @@ impl Options {
     }
   }
 
-  fn format_dogecoin_core_version(version: usize) -> String {
+  fn format_bbqcoin_core_version(version: usize) -> String {
     format!(
       "{}.{}.{}.{}",
       version / 1000000,
@@ -187,7 +187,7 @@ impl Options {
     )
   }
 
-  pub(crate) fn dogecoin_rpc_client(&self) -> Result<Client> {
+  pub(crate) fn bbqcoin_rpc_client(&self) -> Result<Client> {
     let cookie_file = self
       .cookie_file()
       .map_err(|err| anyhow!("failed to get cookie file path: {err}"))?;
@@ -195,14 +195,14 @@ impl Options {
     let rpc_url = self.rpc_url();
 
     log::info!(
-      "Connecting to Dogecoin Core RPC server at {rpc_url} using credentials from `{}`",
+      "Connecting to BBQCoin Core RPC server at {rpc_url} using credentials from `{}`",
       cookie_file.display()
     );
 
     let client =
       Client::new(&rpc_url, Auth::CookieFile(cookie_file.clone())).with_context(|| {
         format!(
-          "failed to connect to Dogecoin Core RPC at {rpc_url} using cookie file {}",
+          "failed to connect to BBQCoin Core RPC at {rpc_url} using cookie file {}",
           cookie_file.display()
         )
       })?;
@@ -212,29 +212,29 @@ impl Options {
       "test" => Chain::Testnet,
       "regtest" => Chain::Regtest,
       "signet" => Chain::Signet,
-      other => bail!("Dogecoin RPC server on unknown chain: {other}"),
+      other => bail!("BBQCoin RPC server on unknown chain: {other}"),
     };
 
     let ord_chain = self.chain();
 
     if rpc_chain != ord_chain {
-      bail!("Dogecoin RPC server is on {rpc_chain} but ord is on {ord_chain}");
+      bail!("BBQCoin RPC server is on {rpc_chain} but ord is on {ord_chain}");
     }
 
     Ok(client)
   }
 
-  pub(crate) fn dogecoin_rpc_client_for_wallet_command(&self, create: bool) -> Result<Client> {
-    let client = self.dogecoin_rpc_client()?;
+  pub(crate) fn bbqcoin_rpc_client_for_wallet_command(&self, create: bool) -> Result<Client> {
+    let client = self.bbqcoin_rpc_client()?;
 
     const MIN_VERSION: usize = 1140600;
 
-    let dogecoin_version = client.version()?;
-    if dogecoin_version < MIN_VERSION {
+    let bbqcoin_version = client.version()?;
+    if bbqcoin_version < MIN_VERSION {
       bail!(
-        "Dogecoin Core {} or newer required, current version is {}",
-        Self::format_dogecoin_core_version(MIN_VERSION),
-        Self::format_dogecoin_core_version(dogecoin_version),
+        "BBQCoin Core {} or newer required, current version is {}",
+        Self::format_bbqcoin_core_version(MIN_VERSION),
+        Self::format_bbqcoin_core_version(bbqcoin_version),
       );
     }
 
@@ -334,11 +334,11 @@ mod tests {
       .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(target_os = "linux") {
-      "/.dogecoin/.cookie"
+      "/.bbqcoin/.cookie"
     } else if cfg!(windows) {
-      r"\Dogecoin\.cookie"
+      r"\BBQCoin\.cookie"
     } else {
-      "/Dogecoin/.cookie"
+      "/BBQCoin/.cookie"
     }))
   }
 
@@ -354,18 +354,18 @@ mod tests {
       .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(target_os = "linux") {
-      "/.dogecoin/signet/.cookie"
+      "/.bbqcoin/signet/.cookie"
     } else if cfg!(windows) {
-      r"\Dogecoin\signet\.cookie"
+      r"\BBQCoin\signet\.cookie"
     } else {
-      "/Dogecoin/signet/.cookie"
+      "/BBQCoin/signet/.cookie"
     }));
   }
 
   #[test]
-  fn cookie_file_defaults_to_dogecoin_data_dir() {
+  fn cookie_file_defaults_to_bbqcoin_data_dir() {
     let arguments =
-      Arguments::try_parse_from(["ord", "--dogecoin-data-dir=foo", "--chain=signet", "index"])
+      Arguments::try_parse_from(["ord", "--bbqcoin-data-dir=foo", "--chain=signet", "index"])
         .unwrap();
 
     let cookie_file = arguments
@@ -507,8 +507,8 @@ mod tests {
     .unwrap();
 
     assert_eq!(
-      options.dogecoin_rpc_client().unwrap_err().to_string(),
-      "Dogecoin RPC server is on testnet but ord is on mainnet"
+      options.bbqcoin_rpc_client().unwrap_err().to_string(),
+      "BBQCoin RPC server is on testnet but ord is on mainnet"
     );
   }
 
@@ -648,29 +648,29 @@ mod tests {
   }
 
   #[test]
-  fn index_dunes_only_returns_true_if_index_dunes_flag_is_passed_and_not_on_mainnnet() {
+  fn index_runes_only_returns_true_if_index_runes_flag_is_passed_and_not_on_mainnnet() {
     assert!(Arguments::try_parse_from([
       "ord",
       "--chain=signet",
-      "--index-dunes",
+      "--index-runes",
       "index",
       "update"
     ])
     .unwrap()
     .options
-    .index_dunes(),);
+    .index_runes(),);
     assert!(!Arguments::try_parse_from([
       "ord",
-      "--index-dunes",
+      "--index-runes",
       "index",
       "update"
     ])
     .unwrap()
     .options
-    .index_dunes(),);
+    .index_runes(),);
     assert!(!Arguments::try_parse_from(["ord", "index", "update"])
       .unwrap()
       .options
-      .index_dunes(),);
+      .index_runes(),);
   }
 }

@@ -3,12 +3,12 @@ pub(crate) use {
   block::BlockHashAndConfirmations,
   block::BlockHtml,
   block::BlockJson,
-  drc20::DRC20,
-  dune::{
-    DuneAddressJson, DuneBalance, DuneEntryJson, DuneHtml, DuneJson, DuneOutput, DuneOutputJson,
+  bqc20::BQC20,
+  rune::{
+    RuneAddressJson, RuneBalance, RuneEntryJson, RuneHtml, RuneJson, RuneOutput, RuneOutputJson,
   },
-  dune_balances::DuneBalancesHtml,
-  dunes::DunesHtml,
+  rune_balances::RuneBalancesHtml,
+  runes::RunesHtml,
   home::HomeHtml,
   iframe::Iframe,
   input::InputHtml,
@@ -30,10 +30,10 @@ pub(crate) use {
 };
 
 mod block;
-mod drc20;
-mod dune;
-mod dune_balances;
-mod dunes;
+mod bqc20;
+mod rune;
+mod rune_balances;
+mod runes;
 mod home;
 mod iframe;
 mod input;

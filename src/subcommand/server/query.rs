@@ -44,19 +44,19 @@ impl Display for Inscription {
     }
 }
 
-pub(super) enum Dune {
-    SpacedDune(SpacedDune),
-    DuneId(DuneId),
+pub(super) enum Rune {
+    SpacedRune(SpacedRune),
+    RuneId(RuneId),
 }
 
-impl FromStr for Dune {
+impl FromStr for Rune {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.contains(':') {
-            Ok(Self::DuneId(s.parse()?))
+            Ok(Self::RuneId(s.parse()?))
         } else {
-            Ok(Self::SpacedDune(s.parse()?))
+            Ok(Self::SpacedRune(s.parse()?))
         }
     }
 }

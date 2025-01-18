@@ -1,20 +1,20 @@
 use bitcoincore_rpc::bitcoin::BlockHeader;
 
 use {
-  self::{dune_updater::DuneUpdater, inscription_updater::InscriptionUpdater},
+  self::{rune_updater::RuneUpdater, inscription_updater::InscriptionUpdater},
   futures::future::try_join_all,
   std::sync::mpsc,
   super::{*, fetcher::Fetcher},
   tokio::sync::mpsc::{error::TryRecvError, Receiver, Sender},
 };
 
-use crate::drc20::BlockContext;
-use crate::index::updater::drc20_updater::Drc20Updater;
+use crate::bqc20::BlockContext;
+use crate::index::updater::bqc20_updater::Bqc20Updater;
 use crate::sat::Sat;
 use crate::sat_point::SatPoint;
 
-mod drc20_updater;
-mod dune_updater;
+mod bqc20_updater;
+mod rune_updater;
 mod inscription_updater;
 
 pub(crate) struct BlockData {
@@ -263,7 +263,7 @@ impl<'index> Updater<'_> {
     // Batch 2048 missing inputs at a time. Arbitrarily chosen for now, maybe higher or lower can be faster?
     // Did rudimentary benchmarks with 1024 and 4096 and time was roughly the same.
     const BATCH_SIZE: usize = 2048 * 10;
-    // Keep in mind that default rpcworkqueue in dogecoind is 16, meaning more than 16 concurrent requests will be rejected.
+    // Keep in mind that default rpcworkqueue in bbqcoind is 16, meaning more than 16 concurrent requests will be rejected.
     // Since we are already requesting blocks on a separate thread, and we don't want to break if anything
     // else runs a request, we need to keep this a bit lower as configured.
     let parallel_requests = index.nr_parallel_requests;
@@ -403,10 +403,10 @@ impl<'index> Updater<'_> {
     let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
     let mut transaction_id_to_transaction = wtx.open_table(TRANSACTION_ID_TO_TRANSACTION)?;
 
-    let mut drc20_token_info = wtx.open_table(DRC20_TOKEN)?;
-    let mut drc20_token_balance = wtx.open_table(DRC20_BALANCES)?;
-    let mut drc20_inscribe_transfer = wtx.open_table(DRC20_INSCRIBE_TRANSFER)?;
-    let mut drc20_transferable_log = wtx.open_table(DRC20_TRANSFERABLELOG)?;
+    let mut bqc20_token_info = wtx.open_table(BQC20_TOKEN)?;
+    let mut bqc20_token_balance = wtx.open_table(BQC20_BALANCES)?;
+    let mut bqc20_inscribe_transfer = wtx.open_table(BQC20_INSCRIBE_TRANSFER)?;
+    let mut bqc20_transferable_log = wtx.open_table(BQC20_TRANSFERABLELOG)?;
 
     let mut lost_sats = statistic_to_count
       .get(&Statistic::LostSats.key())?
@@ -534,15 +534,15 @@ impl<'index> Updater<'_> {
         }
       }
 
-      if index.index_drc20 && self.height >= index.first_inscription_height {
+      if index.index_bqc20 && self.height >= index.first_inscription_height {
         let operations = inscription_updater.operations.clone();
 
-        // Create a protocol manager to index the block of drc20 data.
-        Drc20Updater::new(
-          &mut drc20_token_info,
-          &mut drc20_token_balance,
-          &mut drc20_inscribe_transfer,
-          &mut drc20_transferable_log,
+        // Create a protocol manager to index the block of bqc20 data.
+        Bqc20Updater::new(
+          &mut bqc20_token_info,
+          &mut bqc20_token_balance,
+          &mut bqc20_inscribe_transfer,
+          &mut bqc20_transferable_log,
           &inscription_id_to_inscription_entry,
           &mut transaction_id_to_transaction,
         )?
@@ -560,24 +560,24 @@ impl<'index> Updater<'_> {
       statistic_to_count.insert(&Statistic::LostSats.key(), &lost_sats)?;
     }
 
-    if index.index_dunes && self.height >= self.index.first_dune_height {
-      let mut outpoint_to_dune_balances = wtx.open_table(OUTPOINT_TO_DUNE_BALANCES)?;
-      let mut dune_id_to_dune_entry = wtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
-      let mut dune_to_dune_id = wtx.open_table(DUNE_TO_DUNE_ID)?;
-      let mut inscription_id_to_dune = wtx.open_table(INSCRIPTION_ID_TO_DUNE)?;
-      let mut dune_updater = DuneUpdater::new(
+    if index.index_runes && self.height >= self.index.first_rune_height {
+      let mut outpoint_to_rune_balances = wtx.open_table(OUTPOINT_TO_RUNE_BALANCES)?;
+      let mut rune_id_to_rune_entry = wtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+      let mut rune_to_rune_id = wtx.open_table(RUNE_TO_RUNE_ID)?;
+      let mut inscription_id_to_rune = wtx.open_table(INSCRIPTION_ID_TO_RUNE)?;
+      let mut rune_updater = RuneUpdater::new(
         self.height,
-        &mut outpoint_to_dune_balances,
-        &mut dune_id_to_dune_entry,
+        &mut outpoint_to_rune_balances,
+        &mut rune_id_to_rune_entry,
         &inscription_id_to_inscription_entry,
-        &mut inscription_id_to_dune,
-        &mut dune_to_dune_id,
+        &mut inscription_id_to_rune,
+        &mut rune_to_rune_id,
         &mut statistic_to_count,
         block.header.time,
-        Dune::minimum_at_height(index.chain, Height(self.height)),
+        Rune::minimum_at_height(index.chain, Height(self.height)),
       )?;
       for (i, (tx, txid)) in block.txdata.iter().enumerate() {
-        dune_updater.index_dunes(i, tx, *txid)?;
+        rune_updater.index_runes(i, tx, *txid)?;
       }
     }
 

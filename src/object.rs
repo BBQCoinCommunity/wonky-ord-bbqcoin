@@ -9,7 +9,7 @@ pub enum Object {
   InscriptionId(InscriptionId),
   Integer(u128),
   OutPoint(OutPoint),
-  Dune(SpacedDune),
+  Rune(SpacedRune),
   Sat(Sat),
   SatPoint(SatPoint),
 }
@@ -29,7 +29,7 @@ impl FromStr for Object {
       InscriptionId => Ok(Self::InscriptionId(s.parse()?)),
       Integer => Ok(Self::Integer(s.parse()?)),
       OutPoint => Ok(Self::OutPoint(s.parse()?)),
-      Dune => Ok(Self::Dune(s.parse()?)),
+      Rune => Ok(Self::Rune(s.parse()?)),
       SatPoint => Ok(Self::SatPoint(s.parse()?)),
     }
   }
@@ -48,7 +48,7 @@ impl Display for Object {
       Self::InscriptionId(inscription_id) => write!(f, "{inscription_id}"),
       Self::Integer(integer) => write!(f, "{integer}"),
       Self::OutPoint(outpoint) => write!(f, "{outpoint}"),
-      Self::Dune(dune) => write!(f, "{dune}"),
+      Self::Rune(rune) => write!(f, "{rune}"),
       Self::Sat(sat) => write!(f, "{sat}"),
       Self::SatPoint(satpoint) => write!(f, "{satpoint}"),
     }
@@ -193,7 +193,7 @@ mod tests {
           .unwrap(),
       ),
     );
-    case("A", Object::Dune(Dune(0)));
-    case("B", Object::Dune(Dune(1)));
+    case("A", Object::Rune(Rune(0)));
+    case("B", Object::Rune(Rune(1)));
   }
 }

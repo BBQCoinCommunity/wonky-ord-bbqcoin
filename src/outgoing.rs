@@ -6,7 +6,7 @@ pub(crate) enum Outgoing {
   Amount(Amount),
   InscriptionId(InscriptionId),
   SatPoint(SatPoint),
-  Dune { decimal: Decimal, dune: SpacedDune },
+  Rune { decimal: Decimal, rune: SpacedRune },
 }
 
 
@@ -34,7 +34,7 @@ impl FromStr for Outgoing {
         "
       )
       .unwrap();
-      static ref DUNE: Regex = Regex::new(
+      static ref RUNE: Regex = Regex::new(
         r"(?x)
         ^
         (
@@ -60,10 +60,10 @@ impl FromStr for Outgoing {
       Self::InscriptionId(s.parse()?)
     } else if AMOUNT.is_match(s) {
       Self::Amount(s.parse()?)
-    } else if let Some(captures) = DUNE.captures(s) {
-      Self::Dune {
+    } else if let Some(captures) = RUNE.captures(s) {
+      Self::Rune {
         decimal: captures[1].parse()?,
-        dune: captures[2].parse()?,
+        rune: captures[2].parse()?,
       }
     } else {
       bail!("unrecognized outgoing: {s}");

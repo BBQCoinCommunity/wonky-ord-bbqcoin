@@ -7,7 +7,7 @@ pub(crate) struct OutputHtml {
   pub(crate) chain: Chain,
   pub(crate) output: TxOut,
   pub(crate) inscriptions: Vec<InscriptionId>,
-  pub(crate) dunes: Vec<(SpacedDune, Pile)>,
+  pub(crate) runes: Vec<(SpacedRune, Pile)>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -35,7 +35,7 @@ impl PageContent for OutputHtml {
 pub struct OutputJson {
   pub address: Option<String>,
   pub inscriptions: Vec<InscriptionId>,
-  pub dunes: Vec<(SpacedDune, Pile)>,
+  pub runes: Vec<(SpacedRune, Pile)>,
   pub script_pubkey: String,
   pub transaction: String,
   pub value: u64,
@@ -47,7 +47,7 @@ impl OutputJson {
     inscriptions: Vec<InscriptionId>,
     outpoint: OutPoint,
     output: TxOut,
-    dunes: Vec<(SpacedDune, Pile)>,
+    runes: Vec<(SpacedRune, Pile)>,
   ) -> Self {
     Self {
       address: chain
@@ -55,7 +55,7 @@ impl OutputJson {
           .ok()
           .map(|address| address.to_string()),
       inscriptions,
-      dunes,
+      runes,
       script_pubkey: output.script_pubkey.asm(),
       transaction: outpoint.txid.to_string(),
       value: output.value,
@@ -82,7 +82,7 @@ mod tests {
           value: 3,
           script_pubkey: Script::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        dunes: Vec::new(),
+        runes: Vec::new(),
       },
       "
         <h1>Output <span class=monospace>1{64}:1</span></h1>
@@ -114,7 +114,7 @@ mod tests {
           value: 1,
           script_pubkey: script::Builder::new().push_int(0).into_script(),
         },
-        dunes: Vec::new(),
+        runes: Vec::new(),
       },
       "
         <h1>Output <span class=monospace>1{64}:1</span></h1>
@@ -141,7 +141,7 @@ mod tests {
           value: 3,
           script_pubkey: Script::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        dunes: Vec::new(),
+        runes: Vec::new(),
       }
       .to_string(),
       "
@@ -169,7 +169,7 @@ mod tests {
           value: 3,
           script_pubkey: Script::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        dunes: Vec::new(),
+        runes: Vec::new(),
       },
       "
         <h1>Output <span class=monospace>1{64}:1</span></h1>
@@ -186,7 +186,7 @@ mod tests {
   }
 
   #[test]
-  fn with_dunes() {
+  fn with_runes() {
     assert_regex_match!(
       OutputHtml {
         inscriptions: Vec::new(),
@@ -197,8 +197,8 @@ mod tests {
           value: 3,
           script_pubkey: Script::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        dunes: vec![(
-          Dune(0),
+        runes: vec![(
+          Rune(0),
           Pile {
             amount: 11,
             divisibility: 1,
