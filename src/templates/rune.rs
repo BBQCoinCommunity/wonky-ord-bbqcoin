@@ -58,7 +58,7 @@ pub(crate) struct RuneOutput {
   pub(crate) txid: Txid,
   pub(crate) vout: u32,
   pub(crate) script: Script,
-  pub(crate) shibes: u64,
+  pub(crate) flames: u64,
   pub(crate) balance: u128,
 }
 

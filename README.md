@@ -1,4 +1,4 @@
-# Shibes
+# Flames of BBQCoin
 
 ℹ️ This is a fork/based on [apezord/ord-bbqcoin](https://github.com/apezord/ord-bbqcoin)
 

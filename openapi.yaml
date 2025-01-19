@@ -174,11 +174,11 @@ paths:
                     type: array
                     items:
                       type: object
-                  total_shibes:
+                  total_flames:
                     type: integer
                   total_utxos:
                     type: integer
-                  total_inscription_shibes:
+                  total_inscription_flames:
                     type: integer
 
   /bqc20/balance/{address}:
@@ -429,7 +429,7 @@ paths:
               schema:
                 type: string
 
-  /shibescription/{inscription_id}:
+  /inscription/{inscription_id}:
     get:
       summary: Get Shibescription details
       operationId: getShibescription
@@ -784,7 +784,7 @@ components:
           type: integer
         script:
           type: string
-        shibes:
+        flames:
           type: integer
         confirmations:
           type: integer
@@ -818,7 +818,7 @@ components:
           type: integer
         script:
           type: string
-        shibes:
+        flames:
           type: integer
         balance:
           type: integer

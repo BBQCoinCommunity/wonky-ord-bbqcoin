@@ -108,8 +108,8 @@ pub(crate) struct InscriptionAddressJson {
 pub(crate) struct UtxoAddressJson {
   pub(crate) utxos: Vec<Utxo>,
   pub(crate) total_utxos: usize,
-  pub(crate) total_shibes: u128,
-  pub(crate) total_inscription_shibes: u128,
+  pub(crate) total_flames: u128,
+  pub(crate) total_inscription_flames: u128,
 }
 
 #[derive(Deserialize)]
@@ -620,8 +620,8 @@ impl Server {
     let outpoints: Vec<OutPoint> = index.get_account_outputs(address.clone())?;
 
     let mut utxos = Vec::new();
-    let mut total_shibes = 0u128;
-    let mut inscription_shibes = 0u128;
+    let mut total_flames = 0u128;
+    let mut inscription_flames = 0u128;
 
     for outpoint in outpoints {
       if !index.get_rune_balances_for_outpoint(outpoint)?.is_empty() {
@@ -648,13 +648,13 @@ impl Server {
       }
 
       if !index.get_inscriptions_on_output(outpoint)?.is_empty() {
-        inscription_shibes += output.value as u128;
+        inscription_flames += output.value as u128;
         continue;
       }
 
       element_counter += 1;
 
-      total_shibes += output.value as u128;
+      total_flames += output.value as u128;
 
       let confirmations = if let Some(block_hash_info) = index.get_transaction_blockhash(txid)? {
         block_hash_info.confirmations
@@ -666,16 +666,16 @@ impl Server {
         txid,
         vout,
         script: output.script_pubkey,
-        shibes: output.value,
+        flames: output.value,
         confirmations,
       });
     }
     Ok(
       Json(UtxoAddressJson {
         utxos,
-        total_shibes,
+        total_flames,
         total_utxos: element_counter,
-        total_inscription_shibes: inscription_shibes,
+        total_inscription_flames: inscription_flames,
       })
       .into_response(),
     )
@@ -743,10 +743,10 @@ impl Server {
         .into_iter()
         .nth(vout.try_into().unwrap())
         .ok_or_not_found(|| format!("runes {vout} current transaction output"))?;
-      let shibes = output.value;
+      let flames = output.value;
       let script = output.script_pubkey;
 
-      if value_filter > 0 && shibes <= value_filter {
+      if value_filter > 0 && flames <= value_filter {
         element_counter -= 1;
         continue;
       }
@@ -797,7 +797,7 @@ impl Server {
             txid,
             vout,
             script: script.clone(),
-            shibes,
+            flames,
             confirmations,
           },
           content: str_content,
@@ -895,7 +895,7 @@ impl Server {
             txid,
             vout,
             script: output.script_pubkey,
-            shibes: output.value,
+            flames: output.value,
             balance: balances.amount,
           });
         }
@@ -2144,7 +2144,7 @@ impl Server {
             txid: tx_id,
             vout,
             script: output.script_pubkey.clone(),
-            shibes: output.value,
+            flames: output.value,
             confirmations,
           },
           content: str_content,
